@@ -1,12 +1,12 @@
-# Template Addon for Vaadin Flow
+# TreeGrid Pro Addon for Vaadin Flow
 
-This project is a template for building new Vaadin Flow addons
+This project is an addon that provides a TreeGrid version of Grid Pro
 
 This component is part of Vaadin Component Factory
 
 ## Running the component demo
 Run from the command line:
-- `mvn  -pl vcf-template-demo -Pwar install jetty:run`
+- `mvn  -pl vcf-treegrid-pro-demo -Pwar install jetty:run`
 
 Then navigate to `http://localhost:8080/`
 
@@ -27,7 +27,7 @@ add the following dependency to your `pom.xml`:
 ```
 <dependency>
     <groupId>org.vaadin.addons.componentfactory</groupId>
-    <artifactId>vcf-template</artifactId>
+    <artifactId>vcf-treegrid-pro</artifactId>
     <version>${component.version}</version>
 </dependency>
 ```
