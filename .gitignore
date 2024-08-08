@@ -23,15 +23,15 @@ target/
 hs_err_pid*
 
 # vaadin related files
-vcf-template-demo/package.json
-vcf-template-demo/webpack.config.js
-vcf-template-demo/webpack.generated.js
-vcf-template-demo/target/classes/META-INF/VAADIN/config/flow-build-info.json
-vcf-template-demo/node_modules
-vcf-template-demo/package-lock.json
-vcf-template-demo/frontend/generated
-vcf-template-demo/frontend/index.html
-vcf-template-demo/src/main/bundles
+vcf-treegrid-pro-demo/package.json
+vcf-treegrid-pro-demo/webpack.config.js
+vcf-treegrid-pro-demo/webpack.generated.js
+vcf-treegrid-pro-demo/target/classes/META-INF/VAADIN/config/flow-build-info.json
+vcf-treegrid-pro-demo/node_modules
+vcf-treegrid-pro-demo/package-lock.json
+vcf-treegrid-pro-demo/src/main/frontend/generated
+vcf-treegrid-pro-demo/src/main/frontend/index.html
+vcf-treegrid-pro-demo/src/main/bundles
 
 # ide configurations
 .vscode/settings.json
