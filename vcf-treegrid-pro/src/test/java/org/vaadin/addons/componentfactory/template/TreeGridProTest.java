@@ -17,40 +17,39 @@ package org.vaadin.addons.componentfactory.template;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.After;
-import org.junit.Before;
+import java.util.List;
+
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.treegrid.TreeGridPro;
+import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
 
-import net.jcip.annotations.NotThreadSafe;
-
-@NotThreadSafe
 public class TreeGridProTest {
 
-    private UI ui;
+    private static TreeGridPro<Person> treeGrid;
 
-    @Before
-    public void setUp() {
-        ui = new UI();
-        UI.setCurrent(ui);
-    }
-
-    @After
-    public void tearDown() {
-        UI.setCurrent(null);
+    @BeforeClass
+    public static void setUp() {
+        treeGrid = new TreeGridPro<>(Person.class);
     }
 
     @Test
-    public void paperInput_basicCases() {
-        TreeGridPro tgp = new TreeGridPro();
-
-//        assertEquals(null, pinput.getValue());
-        assertEquals(null, tgp.getElement().getProperty("value"));
-
-//        pinput.setValue("test");
-//        assertEquals("test", tgp.getElement().getProperty("value"));
+    public void testSetDataProvider() {
+    	List<Person> managers = DataService.getManagers();
+        TreeGridPro<Person> treeGridPro = new TreeGridPro<>();
+        treeGridPro.setItems(managers, this::getStaff);
+        treeGridPro.addHierarchyColumn(Person::getFirstName)
+                .setHeader("First name").setKey("firstName");
+        treeGridPro.addEditColumn(Person::getLastName).text(Person::setLastName).setHeader("Last name").setKey("lastName");
+        treeGridPro.addEditColumn(Person::getEmail).text(Person::setEmail).setHeader("Email").setKey("email");
+        assertEquals(TreeDataProvider.class.getName(), treeGrid.getDataProvider().getClass().getName());
+        assertEquals("First name",treeGridPro.getColumnByKey("firstName").getHeaderText());
+        assertEquals("Last name",treeGridPro.getColumnByKey("lastName").getHeaderText());
+        assertEquals("Email",treeGridPro.getColumnByKey("email").getHeaderText());
     }
-
+    
+    public List<Person> getStaff(Person manager) {
+        return DataService.getPeople(manager.getId());
+    }
 }
