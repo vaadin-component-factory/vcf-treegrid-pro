@@ -25,24 +25,31 @@ This profile, when enabled, will execute a production build for the demo
 To use the component in an application using maven,
 add the following dependency to your `pom.xml`:
 
-	<dependency>
-	    <groupId>org.vaadin.addons.componentfactory</groupId>
-	    <artifactId>vcf-treegrid-pro</artifactId>
-	    <version>${component.version}</version>
-	</dependency>
+```
+<dependency>
+    <groupId>org.vaadin.addons.componentfactory</groupId>
+    <artifactId>vcf-treegrid-pro</artifactId>
+    <version>${component.version}</version>
+</dependency>
+```
 
 Then use it as a regular tree grid, but you can also add edit columns in the following way:
 
-        TreeGridPro<Person> treeGridPro = new TreeGridPro<>();
-        treeGridPro.setItems(managers, this::getStaff);
-        treeGridPro.addHierarchyColumn(Person::getFirstName)
-                .setHeader("First name");
-        treeGridPro.addEditColumn(Person::getLastName).text(Person::setLastName).setHeader("Last name");
-        treeGridPro.addEditColumn(Person::getEmail).text(Person::setEmail).setHeader("Email");
+```java
+TreeGridPro<Person> treeGridPro = new TreeGridPro<>();
+treeGridPro.setItems(managers, this::getStaff);
+treeGridPro.addHierarchyColumn(Person::getFirstName).setHeader("First name");
+treeGridPro.addEditColumn(Person::getLastName).text(Person::setLastName).setHeader("Last name");
+treeGridPro.addEditColumn(Person::getEmail).text(Person::setEmail).setHeader("Email");
+```
 
 ## Flow documentation
-Documentation for flow can be found in [Flow documentation](https://vaadin.com/docs/v14/flow/overview).
+Documentation for flow can be found in [Flow documentation](https://vaadin.com/docs/v24/flow/overview).
 
 ## License
+Distributed under Vaadin Commercial License, see [LICENSE](https://github.com/vaadin-component-factory/vcf-treegrid-pro/blob/main/LICENSE).
 
-Apache Licence 2
+TreeGrid Pro Component for Vaadin Flow is written by Vaadin Ltd.
+
+### Sponsored development
+Major pieces of development of this add-on has been sponsored by multiple customers of Vaadin. Read more about Expert on Demand at: [Support](https://vaadin.com/support) and [Pricing](https://vaadin.com/pricing).
