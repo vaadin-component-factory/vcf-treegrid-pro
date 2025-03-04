@@ -32,6 +32,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridArrayUpdater;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.GridArrayUpdater.UpdateQueueData;
+import com.vaadin.flow.component.treegrid.TreeGridPro;
 import com.vaadin.flow.component.treegrid.TreeGridPro.TreeDataCommunicatorBuilder;
 import com.vaadin.flow.data.provider.CompositeDataGenerator;
 import com.vaadin.flow.data.provider.DataCommunicator;
@@ -136,6 +137,7 @@ public class AbstractGridPro<E> extends Grid<E> {
             SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueBuilder,
             TreeDataCommunicatorBuilder<E> dataCommunicatorBuilder) {
         super(pageSize, updateQueueBuilder, dataCommunicatorBuilder);
+        setup();
     }
 
     /**
@@ -585,7 +587,7 @@ public class AbstractGridPro<E> extends Grid<E> {
      */
     @DomEvent("cell-edit-started")
     public static class CellEditStartedEvent<E>
-            extends ComponentEvent<GridPro<E>> {
+            extends ComponentEvent<TreeGridPro<E>> {
 
         private E item;
         private String path;
@@ -604,7 +606,7 @@ public class AbstractGridPro<E> extends Grid<E> {
          * @param path
          *            item subproperty that was changed
          */
-        public CellEditStartedEvent(GridPro<E> source, boolean fromClient,
+        public CellEditStartedEvent(TreeGridPro<E> source, boolean fromClient,
                 @EventData("event.detail.item") JsonObject item,
                 @EventData("event.detail.path") String path) {
             super(source, fromClient);
@@ -654,7 +656,7 @@ public class AbstractGridPro<E> extends Grid<E> {
      */
     @DomEvent("item-property-changed")
     public static class ItemPropertyChangedEvent<E>
-            extends ComponentEvent<GridPro<E>> {
+            extends ComponentEvent<TreeGridPro<E>> {
 
         private E item;
         private JsonObject sourceItem;
@@ -674,7 +676,7 @@ public class AbstractGridPro<E> extends Grid<E> {
          * @param path
          *            item subproperty that was changed
          */
-        public ItemPropertyChangedEvent(GridPro<E> source, boolean fromClient,
+        public ItemPropertyChangedEvent(TreeGridPro<E> source, boolean fromClient,
                 @EventData("event.detail.item") JsonObject item,
                 @EventData("event.detail.path") String path) {
             super(source, fromClient);
