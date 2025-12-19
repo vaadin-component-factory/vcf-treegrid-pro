@@ -6,8 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.transform.Templates;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.helger.commons.io.resource.ClassPathResource;
 
 public class DataService {

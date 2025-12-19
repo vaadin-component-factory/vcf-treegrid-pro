@@ -1,6 +1,6 @@
 package org.vaadin.addons.componentfactory.template;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 public class Address {
 

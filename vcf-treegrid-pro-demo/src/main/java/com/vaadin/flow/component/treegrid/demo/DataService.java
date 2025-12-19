@@ -7,9 +7,8 @@ import java.util.List;
 
 import javax.xml.transform.Templates;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.helger.commons.io.resource.ClassPathResource;
-import com.vaadin.flow.demo.Card;
 
 public class DataService {
 
@@ -80,10 +79,6 @@ public class DataService {
 
     public static Templates getTemplates() {
         return getItems(Templates.class, "templates.json");
-    }
-
-    public static List<Card> getCards() {
-        return Arrays.asList(getItems(Card[].class, "cards.json"));
     }
 
 }

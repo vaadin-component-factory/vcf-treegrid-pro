@@ -1,6 +1,6 @@
 package com.vaadin.flow.component.treegrid.demo;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 public class Address {
 
