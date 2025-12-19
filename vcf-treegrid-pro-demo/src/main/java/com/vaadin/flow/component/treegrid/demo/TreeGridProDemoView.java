@@ -15,13 +15,12 @@
  */
 package com.vaadin.flow.component.treegrid.demo;
 
-import java.util.List;
-
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.dependency.StyleSheet;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.treegrid.TreeGridPro;
-import com.vaadin.flow.demo.DemoView;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.lumo.Lumo;
+import java.util.List;
 
 /**
  * View for {@link PaperInput} demo.
@@ -30,21 +29,14 @@ import com.vaadin.flow.router.Route;
  */
 @SuppressWarnings("serial")
 @Route("")
-public class TreeGridProDemoView extends DemoView {
-
-    @Override
-    public void initView() {
+@StyleSheet(Lumo.STYLESHEET)
+public class TreeGridProDemoView extends VerticalLayout {
+    
+    public TreeGridProDemoView() {
         createBasicPaperInputDemo();
-
-        addCard("Additional code used in the demo",
-                new Span("These methods are used in the demo."));
     }
 
     private void createBasicPaperInputDemo() {
-        Div message = createMessageDiv("simple-paper-input-demo-message");
-
-        // begin-source-example
-        // source-example-heading: Simple paper input
         List<Person> managers = DataService.getManagers();
         TreeGridPro<Person> treeGridPro = new TreeGridPro<>();
         treeGridPro.setItems(managers, this::getStaff);
@@ -56,24 +48,11 @@ public class TreeGridProDemoView extends DemoView {
 
         treeGridPro.setId("tree-grid-pro");
 
-        addCard("TreeGrid Pro", treeGridPro, message);
+        add(treeGridPro);
     }
-
    
-    // begin-source-example
-    // source-example-heading: Additional code used in the demo
-    /**
-     * Additional code used in the demo
-     */
-    private Div createMessageDiv(String id) {
-        Div message = new Div();
-        message.setId(id);
-        message.getStyle().set("whiteSpace", "pre");
-        return message;
-    }
-    
     public List<Person> getStaff(Person manager) {
         return DataService.getPeople(manager.getId());
     }
-    // end-source-example
+
 }

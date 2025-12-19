@@ -8,14 +8,6 @@
  */
 package com.vaadin.flow.component.gridpro;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
@@ -30,8 +22,6 @@ import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.grid.ColumnPathRenderer;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridArrayUpdater;
-import com.vaadin.flow.component.grid.Grid.Column;
-import com.vaadin.flow.component.grid.GridArrayUpdater.UpdateQueueData;
 import com.vaadin.flow.component.treegrid.TreeGridPro;
 import com.vaadin.flow.component.treegrid.TreeGridPro.TreeDataCommunicatorBuilder;
 import com.vaadin.flow.data.provider.CompositeDataGenerator;
@@ -42,20 +32,24 @@ import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.renderer.Rendering;
 import com.vaadin.flow.dom.Element;
-import com.vaadin.flow.function.SerializableBiFunction;
+import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.ValueProvider;
-import com.vaadin.flow.internal.JsonSerializer;
+import com.vaadin.flow.internal.JacksonSerializer;
 import com.vaadin.flow.shared.Registration;
-
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 @SuppressWarnings("serial")
 @Tag("vaadin-grid-pro")
-@NpmPackage(value = "@vaadin/polymer-legacy-adapter", version = "24.3.13")
-@JsModule("@vaadin/polymer-legacy-adapter/style-modules.js")
-@NpmPackage(value = "@vaadin/grid-pro", version = "24.3.13")
+@NpmPackage(value = "@vaadin/grid-pro", version = "25.0.0")
 @JsModule("@vaadin/grid-pro/src/vaadin-grid-pro.js")
 @JsModule("@vaadin/grid-pro/src/vaadin-grid-pro-edit-column.js")
 @JsModule("./gridProConnector.js")
@@ -120,8 +114,6 @@ public class AbstractGridPro<E> extends Grid<E> {
      *
      * @param pageSize
      *            the page size. Must be greater than zero.
-     * @param updateQueueBuilder
-     *            the builder for new {@link UpdateQueue} instance
      * @param dataCommunicatorBuilder
      *            Builder for {@link DataCommunicator} implementation this Grid
      *            uses to handle all data communication.
@@ -134,9 +126,8 @@ public class AbstractGridPro<E> extends Grid<E> {
     @SuppressWarnings("unchecked")
     public <U extends GridArrayUpdater, B extends DataCommunicatorBuilder<E, U>> AbstractGridPro(
             int pageSize,
-            SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueBuilder,
             TreeDataCommunicatorBuilder<E> dataCommunicatorBuilder) {
-        super(pageSize, updateQueueBuilder, dataCommunicatorBuilder);
+        super(pageSize, dataCommunicatorBuilder);
         setup();
     }
 
@@ -152,8 +143,6 @@ public class AbstractGridPro<E> extends Grid<E> {
      *
      * @param beanType
      *            the bean type to use, not <code>null</code>
-     * @param updateQueueBuilder
-     *            the builder for new {@link UpdateQueue} instance
      * @param dataCommunicatorBuilder
      *            Builder for {@link DataCommunicator} implementation this Grid
      *            uses to handle all data communication.
@@ -164,9 +153,45 @@ public class AbstractGridPro<E> extends Grid<E> {
      */
     protected <U extends GridArrayUpdater, B extends DataCommunicatorBuilder<E, U>> AbstractGridPro(
             Class<E> beanType,
-            SerializableBiFunction<UpdateQueueData, Integer, UpdateQueue> updateQueueBuilder,
             TreeDataCommunicatorBuilder<E> dataCommunicatorBuilder) {
-        super(beanType, updateQueueBuilder, dataCommunicatorBuilder);
+        super(beanType, dataCommunicatorBuilder);
+    }
+    
+    /**
+     * Creates a new grid with an initial set of columns for each of the bean's
+     * properties. The property-values of the bean will be converted to Strings.
+     * Full names of the properties will be used as the
+     * {@link Column#setKey(String) column keys} and the property captions will
+     * be used as the {@link Column#setHeader(String) column headers}.
+     * <p>
+     * When autoCreateColumns is <code>true</code>, only the direct properties
+     * of the bean are included and they will be in alphabetical order. Use
+     * {@link Grid#setColumns(String...)} to define which properties to include
+     * and in which order. You can also add a column for an individual property
+     * with {@link #addColumn(String)}. Both of these methods support also
+     * sub-properties with dot-notation, eg.
+     * <code>"property.nestedProperty"</code>.
+     *
+     * @param beanType
+     *            the bean type to use, not <code>null</code>
+     * @param dataCommunicatorBuilder
+     *            Builder for {@link DataCommunicator} implementation this Grid
+     *            uses to handle all data communication.
+     * @param <B>
+     *            the data communicator builder type
+     * @param <U>
+     *            the GridArrayUpdater type
+     * @param autoCreateColumns
+     *            when <code>true</code>, columns are created automatically for
+     *            the properties of the beanType
+     */
+    protected <U extends GridArrayUpdater, B extends DataCommunicatorBuilder<E, U>> AbstractGridPro(
+            Class<E> beanType, TreeDataCommunicatorBuilder<E> dataCommunicatorBuilder,
+            boolean autoCreateColumns) {
+        this(50, dataCommunicatorBuilder);
+        Objects.requireNonNull(dataCommunicatorBuilder,
+                "Data communicator builder can't be null");
+        configureBeanType(beanType, autoCreateColumns);
     }
 
     @Override
@@ -253,13 +278,12 @@ public class AbstractGridPro<E> extends Grid<E> {
      *            type of the underlying grid this column is compatible with
      */
     @Tag("vaadin-grid-pro-edit-column")
-    @NpmPackage(value = "@vaadin/polymer-legacy-adapter", version = "24.3.13")
-    @JsModule("@vaadin/polymer-legacy-adapter/style-modules.js")
     public static class EditColumn<T> extends Column<T> {
 
         private ItemUpdater<T, String> itemUpdater;
         private HasValueAndElement editorField;
         private ValueProvider<T, ?> valueProvider;
+        private SerializablePredicate<T> cellEditableProvider;
         private boolean manualRefresh = false;
 
         /**
@@ -343,7 +367,7 @@ public class AbstractGridPro<E> extends Grid<E> {
          */
         protected EditColumn<T> setOptions(List<String> options) {
             getElement().setPropertyJson("editorOptions",
-                    JsonSerializer.toJson(options));
+                JacksonSerializer.toJson(options));
             return this;
         }
 
@@ -354,8 +378,8 @@ public class AbstractGridPro<E> extends Grid<E> {
          */
         @Synchronize("editor-options-changed")
         protected List<String> getOptions() {
-            return JsonSerializer.toObjects(String.class,
-                    (JsonArray) getElement().getPropertyRaw("editorOptions"));
+            return JacksonSerializer.toObjects(String.class,
+                    (ArrayNode) getElement().getPropertyRaw("editorOptions"));
         }
 
         public ValueProvider<T, ?> getValueProvider() {
@@ -372,6 +396,17 @@ public class AbstractGridPro<E> extends Grid<E> {
 
         void setManualRefresh(boolean manualRefresh) {
             this.manualRefresh = manualRefresh;
+        }
+        
+        void setCellEditableProvider(
+              SerializablePredicate<T> cellEditableProvider) {
+          this.cellEditableProvider = cellEditableProvider;
+        }
+    
+        // Expose protected method from Column to GridPro
+        @Override
+        protected String getInternalId() {
+            return super.getInternalId();
         }
     }
 
@@ -418,15 +453,14 @@ public class AbstractGridPro<E> extends Grid<E> {
         String columnId = createColumnId(false);
 
         EditColumn<E> column = this.addColumn(
-                (new ColumnComponentPathRenderer<>(columnId, value -> {
-                    Object item = valueProvider.apply(value);
-                    if (item != null) {
-                        return item.toString();
-                    } else {
-                        return "";
-                    }
-                }, renderer)), this::createEditColumn);
-        idToColumnMap.put(columnId, column);
+            (new ColumnComponentPathRenderer<>(columnId, value -> {
+                Object item = valueProvider.apply(value);
+                if (item != null) {
+                    return item.toString();
+                } else {
+                    return "";
+                }
+            }, renderer)), this::createEditColumn);
 
         return new EditColumnConfigurer<>(column, valueProvider);
     }
@@ -575,7 +609,6 @@ public class AbstractGridPro<E> extends Grid<E> {
     protected EditColumn<E> createEditColumn(Renderer<E> renderer,
             String columnId) {
         EditColumn<E> column = new EditColumn<>(this, columnId, renderer);
-        idToColumnMap.put(columnId, column);
         return column;
     }
 
@@ -607,11 +640,11 @@ public class AbstractGridPro<E> extends Grid<E> {
          *            item subproperty that was changed
          */
         public CellEditStartedEvent(TreeGridPro<E> source, boolean fromClient,
-                @EventData("event.detail.item") JsonObject item,
+                @EventData("event.detail.item") ObjectNode item,
                 @EventData("event.detail.path") String path) {
             super(source, fromClient);
             this.item = source.getDataCommunicator().getKeyMapper()
-                    .get(item.getString("key"));
+                    .get(item.get("key").asString());
             this.path = path;
         }
 
@@ -659,7 +692,7 @@ public class AbstractGridPro<E> extends Grid<E> {
             extends ComponentEvent<TreeGridPro<E>> {
 
         private E item;
-        private JsonObject sourceItem;
+        private ObjectNode sourceItem;
         private String path;
 
         /**
@@ -677,12 +710,12 @@ public class AbstractGridPro<E> extends Grid<E> {
          *            item subproperty that was changed
          */
         public ItemPropertyChangedEvent(TreeGridPro<E> source, boolean fromClient,
-                @EventData("event.detail.item") JsonObject item,
+                @EventData("event.detail.item") ObjectNode item,
                 @EventData("event.detail.path") String path) {
             super(source, fromClient);
             this.sourceItem = item;
             this.item = source.getDataCommunicator().getKeyMapper()
-                    .get(item.getString("key"));
+                    .get(item.get("key").asString());
             this.path = path;
         }
 
@@ -700,7 +733,7 @@ public class AbstractGridPro<E> extends Grid<E> {
          *
          * @return the instance of edited item
          */
-        private JsonObject getSourceItem() {
+        private ObjectNode getSourceItem() {
             return sourceItem;
         }
 
