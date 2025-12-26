@@ -609,6 +609,7 @@ public class AbstractGridPro<E> extends Grid<E> {
     protected EditColumn<E> createEditColumn(Renderer<E> renderer,
             String columnId) {
         EditColumn<E> column = new EditColumn<>(this, columnId, renderer);
+        this.idToColumnMap.put(columnId, column);
         return column;
     }
 
