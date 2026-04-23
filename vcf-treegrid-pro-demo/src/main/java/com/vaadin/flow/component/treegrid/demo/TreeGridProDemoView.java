@@ -23,7 +23,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import java.util.List;
 
 /**
- * View for {@link PaperInput} demo.
+ * View for {@link TreeGridPro} demo.
  *
  * @author Vaadin Ltd
  */
@@ -33,10 +33,10 @@ import java.util.List;
 public class TreeGridProDemoView extends VerticalLayout {
     
     public TreeGridProDemoView() {
-        createBasicPaperInputDemo();
+        createBasicTreeGridProDemo();
     }
 
-    private void createBasicPaperInputDemo() {
+    private void createBasicTreeGridProDemo() {
         List<Person> managers = DataService.getManagers();
         TreeGridPro<Person> treeGridPro = new TreeGridPro<>();
         treeGridPro.setItems(managers, this::getStaff);
@@ -44,8 +44,7 @@ public class TreeGridProDemoView extends VerticalLayout {
                 .setHeader("First name");
         treeGridPro.addEditColumn(Person::getLastName).text(Person::setLastName).setHeader("Last name");
         treeGridPro.addEditColumn(Person::getEmail).text(Person::setEmail).setHeader("Email");
-        // end-source-example
-
+      
         treeGridPro.setId("tree-grid-pro");
 
         add(treeGridPro);
