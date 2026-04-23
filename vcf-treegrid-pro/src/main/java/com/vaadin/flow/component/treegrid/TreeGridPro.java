@@ -1157,4 +1157,9 @@ public class TreeGridPro<T> extends AbstractGridPro<T>
                         "this.$connector.scrollToItem($0, ...$1)", itemKey,
                         itemIndexPath)));
     }
+    
+    @Override
+    protected void refreshViewport() {
+        ((TreeGridDataCommunicator<T>) getDataCommunicator()).refreshViewport();
+    }
 }
